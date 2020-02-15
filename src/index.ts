@@ -19,7 +19,7 @@ export interface NotarizeApiKeyCredentials {
 export type NotarizeCredentials = NotarizePasswordCredentials | NotarizeApiKeyCredentials;
 
 export interface NotarizeAppOptions {
-  appPath: string;
+  dmgPath: string;
   appBundleId: string;
 }
 
@@ -33,7 +33,7 @@ export interface NotarizeResult {
 
 export type NotarizeStartOptions = NotarizeAppOptions & NotarizeCredentials & TransporterOptions;
 export type NotarizeWaitOptions = NotarizeResult & NotarizeCredentials;
-export type NotarizeStapleOptions = Pick<NotarizeAppOptions, 'appPath'>;
+export type NotarizeStapleOptions = Pick<NotarizeAppOptions, 'dmgPath'>;
 export type NotarizeOptions = NotarizeStartOptions;
 
 function authorizationArgs(opts: NotarizeCredentials): string[] {
@@ -50,12 +50,12 @@ function authorizationArgs(opts: NotarizeCredentials): string[] {
 }
 
 export async function startNotarize(opts: NotarizeStartOptions): Promise<NotarizeResult> {
-  d('starting notarize process for app:', opts.appPath);
+  d('starting notarize process for app:', opts.dmgPath);
   return await withTempDir<NotarizeResult>(async dir => {
-    const zipPath = path.resolve(dir, `${path.basename(opts.appPath, '.app')}.zip`);
+    const zipPath = path.resolve(dir, `${path.basename(opts.dmgPath, '.dmg')}.zip`);
     d('zipping application to:', zipPath);
-    const zipResult = await spawn('zip', ['-r', '-y', zipPath, path.basename(opts.appPath)], {
-      cwd: path.dirname(opts.appPath),
+    const zipResult = await spawn('zip', ['-r', '-y', zipPath, path.basename(opts.dmgPath)], {
+      cwd: path.dirname(opts.dmgPath),
     });
     if (zipResult.code !== 0) {
       throw new Error(
@@ -80,7 +80,7 @@ export async function startNotarize(opts: NotarizeStartOptions): Promise<Notariz
 
     const result = await spawn('xcrun', notarizeArgs);
     if (result.code !== 0) {
-      throw new Error(`Failed to upload app to Apple's notarization servers\n\n${result.output}`);
+      throw new Error(`Failed to upload dmg to Apple's notarization servers\n\n${result.output}`);
     }
     d('upload success');
 
@@ -145,9 +145,9 @@ Logs: ${notarizationInfo.logFileUrl}`);
 }
 
 export async function stapleApp(opts: NotarizeStapleOptions): Promise<void> {
-  d('attempting to staple app:', opts.appPath);
-  const result = await spawn('xcrun', ['stapler', 'staple', '-v', path.basename(opts.appPath)], {
-    cwd: path.dirname(opts.appPath),
+  d('attempting to staple app:', opts.dmgPath);
+  const result = await spawn('xcrun', ['stapler', 'staple', '-v', path.basename(opts.dmgPath)], {
+    cwd: path.dirname(opts.dmgPath),
   });
 
   if (result.code !== 0) {
@@ -162,13 +162,13 @@ export async function stapleApp(opts: NotarizeStapleOptions): Promise<void> {
 
 export async function notarize({
   appBundleId,
-  appPath,
+  dmgPath,
   ascProvider,
   ...authOptions
 }: NotarizeOptions) {
   const { uuid } = await startNotarize({
     appBundleId,
-    appPath,
+    dmgPath,
     ascProvider,
     ...authOptions,
   });
@@ -184,7 +184,7 @@ export async function notarize({
   await delay(10000);
   d('starting to poll for notarization status');
   await waitForNotarize({ uuid, ...authOptions });
-  await stapleApp({ appPath });
+  await stapleApp({ dmgPath });
 }
 
 function delay(ms: number): Promise<void> {

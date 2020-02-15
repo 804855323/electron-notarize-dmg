@@ -1,6 +1,9 @@
 Electron Notarize
 -----------
 
+Fork update: quick hack to adjust the tool for DMG files
+(dmgPath is used instead of appPath)
+
 > Notarize your Electron apps seamlessly for macOS
 
 [![CircleCI status](https://circleci.com/gh/electron/electron-notarize.svg?style=svg)](https://circleci.com/gh/electron/electron-notarize)

@@ -1,7 +1,7 @@
 {
-  "name": "electron-notarize",
+  "name": "electron-notarize-dmg",
   "version": "0.0.0-development",
-  "description": "Notarize your Electron app",
+  "description": "Notarize your Electron DMG",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "author": "Samuel Attard",
