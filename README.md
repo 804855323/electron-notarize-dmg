@@ -1,8 +1,69 @@
-Electron Notarize
+Electron Notarize fork for notarizing dmg files
 -----------
 
-Fork update: quick hack to adjust the tool for DMG files
-(dmgPath is used instead of appPath)
+## Fork update notes 
+
+This fork changes a few lines to allow notarizing dmg files.
+
+- Does not zip the dmg file before sending it to apple.
+- Changes appPath parameter to dmgPath.
+- added boolean parameter "staple" (default: true)
+
+Keep in mind that stapling the dmg file changes its contents
+so you have to update the blockmap and auto update files.
+
+(You can notarize and not staple to keep the file intact.
+This would require end users to have connectivity to validate the file)
+
+### Usage:
+
+
+(Use dmgPath instead of appPath)
+
+```javascript
+return await notarize({
+    appBundleId: THE APP BUNDLE ID TO USE,
+    dmgPath: dmgPath,
+    appleId: THE APPLE ID,
+    appleIdPassword: PASSWORD,
+    staple: true,
+  });
+```
+
+### Using as a hook with electron builder
+
+Create a new file and set it as a hook after building all artifacts.
+
+Example:
+
+```
+require("dotenv").config();
+const { notarize } = require("electron-notarize-dmg");
+const config = require("../package.json");
+
+exports.default = async function notarizing(context) {
+  console.log("Notarizing DMG...");
+
+  const dmgPath = context.artifactPaths.find(p => p.endsWith(".dmg"));
+  if(!dmgPath)
+    return;
+
+  return await notarize({
+    appBundleId: config.build.appId,
+    dmgPath: dmgPath,
+    appleId: process.env.APPLEID,
+    appleIdPassword: process.env.APPLEIDPASS
+  });
+};
+
+```
+
+
+
+The rest of the code is the same.
+
+---------------Original README--------------------
+
 
 > Notarize your Electron apps seamlessly for macOS
 

@@ -21,6 +21,7 @@ export type NotarizeCredentials = NotarizePasswordCredentials | NotarizeApiKeyCr
 export interface NotarizeAppOptions {
   dmgPath: string;
   appBundleId: string;
+  staple: boolean;
 }
 
 export interface TransporterOptions {
@@ -52,6 +53,7 @@ function authorizationArgs(opts: NotarizeCredentials): string[] {
 export async function startNotarize(opts: NotarizeStartOptions): Promise<NotarizeResult> {
   d('starting notarize process for app:', opts.dmgPath);
   return await withTempDir<NotarizeResult>(async dir => {
+    /*
     const zipPath = path.resolve(dir, `${path.basename(opts.dmgPath, '.dmg')}.zip`);
     d('zipping application to:', zipPath);
     const zipResult = await spawn('zip', ['-r', '-y', zipPath, path.basename(opts.dmgPath)], {
@@ -63,12 +65,14 @@ export async function startNotarize(opts: NotarizeStartOptions): Promise<Notariz
       );
     }
     d('zip succeeded, attempting to upload to Apple');
+    */
+
 
     const notarizeArgs = [
       'altool',
       '--notarize-app',
       '-f',
-      zipPath,
+      opts.dmgPath,
       '--primary-bundle-id',
       opts.appBundleId,
       ...authorizationArgs(opts),
@@ -163,6 +167,7 @@ export async function stapleApp(opts: NotarizeStapleOptions): Promise<void> {
 export async function notarize({
   appBundleId,
   dmgPath,
+  staple=true,
   ascProvider,
   ...authOptions
 }: NotarizeOptions) {
@@ -170,6 +175,7 @@ export async function notarize({
     appBundleId,
     dmgPath,
     ascProvider,
+    staple,
     ...authOptions,
   });
   /**
@@ -184,7 +190,9 @@ export async function notarize({
   await delay(10000);
   d('starting to poll for notarization status');
   await waitForNotarize({ uuid, ...authOptions });
-  await stapleApp({ dmgPath });
+  if(staple){
+    await stapleApp({ dmgPath });
+  }
 }
 
 function delay(ms: number): Promise<void> {
