@@ -12,8 +12,6 @@ This fork changes a few lines to allow notarizing dmg files.
 Keep in mind that stapling the dmg file changes its contents
 so you have to update the blockmap and auto update files.
 
-(You can notarize and not staple to keep the file intact.
-This would require end users to have connectivity to validate the file)
 
 ### Usage:
 
@@ -58,9 +56,18 @@ exports.default = async function notarizing(context) {
 
 ```
 
+Notes:
+
+- Remember to notarize the .app bundle too.
+- After notarizing, the stapling process will modify the .dmg file (optional).
+- You can notarize and not staple if you don't want the dmg contents to change. When users try to install the package it will be checked against Apple registry (requires internet) and it would work.
+- If you enable stapling for the dmg(default) then the blockmap and yml files required for updates need to be re created for auto updates to work (because the declared file size and hash would differ from the stapled file). 
 
 
-The rest of the code is the same.
+Fixing blockmap and yml files are currently not included in this package but you can do it manually:
+
+- Check https://github.com/develar/app-builder to manually generate a blockmap file for your dmg.
+
 
 ---------------Original README--------------------
 
