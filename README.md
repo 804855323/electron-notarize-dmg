@@ -12,6 +12,8 @@ This fork changes a few lines to allow notarizing dmg files.
 Keep in mind that stapling the dmg file changes its contents
 so you have to update the blockmap and auto update files.
 
+(If you are having issues try setting staple to false, the dmg
+won't have the ticket but it will still work as it's authorized in Apple servers)
 
 ### Usage:
 
