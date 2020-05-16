@@ -24,7 +24,7 @@ return await notarize({
     dmgPath: dmgPath,
     appleId: THE APPLE ID,
     appleIdPassword: PASSWORD,
-    staple: true,
+    staple: false,
   });
 ```
 
